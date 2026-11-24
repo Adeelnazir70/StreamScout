@@ -16,7 +16,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Details'>;
 
 const POSTER_WIDTH = isTV ? 260 : 130;
 
-export function DetailsScreen({ route }: Props) {
+export function DetailsScreen({ route, navigation }: Props) {
   const { id } = route.params;
   const { data: show, isPending, isError, error, refetch } = useShowDetails(id);
 
@@ -26,10 +26,23 @@ export function DetailsScreen({ route }: Props) {
   if (isError) {
     return <ErrorView message={error.message} onRetry={refetch} />;
   }
-  return <ShowDetailsView show={show} />;
+  return (
+    <ShowDetailsView
+      show={show}
+      onPlay={() =>
+        navigation.navigate('Player', { showId: show.id, showName: show.name })
+      }
+    />
+  );
 }
 
-function ShowDetailsView({ show }: { show: ShowDetails }) {
+function ShowDetailsView({
+  show,
+  onPlay,
+}: {
+  show: ShowDetails;
+  onPlay: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const isFavorite = useIsFavorite(show.id);
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
@@ -72,13 +85,18 @@ function ShowDetailsView({ show }: { show: ShowDetails }) {
               </Text>
             ))}
           </View>
-          <FocusButton
-            label={isFavorite ? '♥ In favourites' : '♡ Add to favourites'}
-            variant={isFavorite ? 'secondary' : 'primary'}
-            onPress={() => toggleFavorite(show)}
-            hasTVPreferredFocus={isTV}
-            style={styles.favoriteButton}
-          />
+          <View style={styles.actions}>
+            <FocusButton
+              label="▶  Play sample"
+              variant="primary"
+              onPress={onPlay}
+              hasTVPreferredFocus={isTV}
+            />
+            <FocusButton
+              label={isFavorite ? '♥ In favourites' : '♡ Add to favourites'}
+              onPress={() => toggleFavorite(show)}
+            />
+          </View>
         </View>
       </View>
 
@@ -127,7 +145,12 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     overflow: 'hidden',
   },
-  favoriteButton: { marginTop: spacing.lg },
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
   summary: {
     color: colors.text,
     fontSize: fontSize.md,

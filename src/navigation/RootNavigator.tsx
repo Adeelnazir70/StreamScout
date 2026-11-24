@@ -3,12 +3,14 @@ import React from 'react';
 import { DetailsScreen } from '../screens/DetailsScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { PlayerScreen } from '../screens/PlayerScreen';
 import { colors, isTV } from '../theme';
 
 export type RootStackParamList = {
   Home: undefined;
   Details: { id: number; name: string };
   Favorites: undefined;
+  Player: { showId: number; showName: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,6 +41,15 @@ export function RootNavigator() {
         name="Favorites"
         component={FavoritesScreen}
         options={{ title: 'Favourites' }}
+      />
+      <Stack.Screen
+        name="Player"
+        component={PlayerScreen}
+        options={{
+          headerShown: false,
+          animation: 'fade',
+          contentStyle: { backgroundColor: '#000' },
+        }}
       />
     </Stack.Navigator>
   );
